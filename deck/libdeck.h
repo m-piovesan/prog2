@@ -14,19 +14,7 @@ typedef struct lista {
 lista_t *lista_cria ();
 
 /* Insere elemento na lista */
-int lista_insere (lista_t *l);
-
-/* 
- * Avança um elemento da lista (usar pro começo)
- * Retorna 1 em caso de sucesso e 0 cc.
-*/
-int prox_elemento (lista_t *l);
-
-/* 
- * Retorna um elemento da lista (usar pro final)
- * Retorna 1 em caso de sucesso e 0 cc.
-*/
-int ant_elemento (lista_t *l);
+int lista_insere(lista_t *l, int valor);
 
 /* Testa se o começo e fim são iguais */
 int testa_palindromo (lista_t *l);

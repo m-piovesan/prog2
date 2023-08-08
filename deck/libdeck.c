@@ -1,5 +1,12 @@
 /* do a list struct where you just push/pop at the start and end of it */
 
+/* TO-DO
+
+    - the function to add values should add at the end or at the start of the list,
+      this specific concept is missing, i'm adding only in the end of the list
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "libdeck.h"
@@ -41,52 +48,28 @@ int lista_insere(lista_t *l, int valor) {
         l->ini = novo;
         l->fim = novo;
         l->tam++;
-        novo->prox = NULL;
+    
         return 1;
     }
 
-    l->fim->prox = novo;
-    novo->ant = l->fim;
-    l->fim = novo;
+    int opcao;
+    printf("Deseja inserir a carta no início ou fim? (0 para início, 1 para fim)\n");
+    scanf("%d", &opcao);
+
+    if (opcao) {
+        l->fim->prox = novo;
+        novo->ant = l->fim;
+        l->fim = novo;
+        l->tam++;
+
+        return 1;
+    }
+
+    l->ini->ant = novo;
+    novo->prox = l->ini;
+    l->ini = novo;
     l->tam++;
-    return 1;
-}
 
-/* 
- * Avança um elemento da lista (usar pro começo)
- * Retorna 1 em caso de sucesso e 0 cc.
-*/
-int prox_elemento (lista_t *l) {
-    if (lista_vazia(l))
-        return 0;
-    
-    if (l->ini == NULL)
-        return 0;
-    
-    if (l->ini->prox == NULL)
-        return 0;
-    
-    l->ini = l->ini->prox;
-    
-    return 1;
-}
-
-/* 
- * Retorna um elemento da lista (usar pro final)
- * Retorna 1 em caso de sucesso e 0 cc.
-*/
-int ant_elemento (lista_t *l) {
-    if (lista_vazia(l))
-        return 0;
-    
-    if (l->fim == NULL)
-        return 0;
-    
-    if (l->fim->ant == NULL)
-        return 0;
-    
-    l->fim = l->fim->ant;
-    
     return 1;
 }
 
@@ -104,7 +87,7 @@ int testa_palindromo (lista_t *l) {
     nodo_t *aux1 = l->ini;
     nodo_t *aux2 = l->fim;
 
-    while (tam_lista <= 0) {
+    while (tam_lista > 0) {
         if (aux1->num != aux2->num)
             return 0;
             
