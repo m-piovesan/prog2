@@ -21,7 +21,7 @@ int main () {
                 requisita(titulo, texto);
             
                 // seleciona o tipo de notícia (em qual fila cadastrar)
-                printf("Qual o tipo da notícia?\n1- Informe\n0- Breaking News\n");
+                printf("Qual o tipo da notícia?\n0- Breaking News\n1- Informe\n");
                 scanf("%d", &tipoNoticia);
         
                 switch (tipoNoticia) {

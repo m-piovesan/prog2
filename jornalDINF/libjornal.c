@@ -23,7 +23,7 @@ lista_t *lista_cria () {
  * Retorna 1 em caso de sucesso e 0 caso contrario.
 */
 int lista_insere(lista_t *l, char *titulo, char *texto) {
-    if (lista_vazia(l))
+    if (l == NULL)
         return 0;
     
     nodo_t *novo = malloc(sizeof(nodo_t));
@@ -43,7 +43,7 @@ int lista_insere(lista_t *l, char *titulo, char *texto) {
     novo->prox = NULL;
 
     /* caso lista vazia */
-    if (l->ini == NULL) {
+    if (lista_vazia(l)) {
         l->ini = novo;
         l->fim = novo;
         l->tam++;
@@ -62,32 +62,37 @@ int lista_remove(lista_t *l) {
     if (lista_vazia(l))
         return 0;
 
-    nodo_t *aux = l->ini;
-
     /* caso primeira notícia seja inválida (mais de 3 dias) */
     if (l->ini->idade > 3) {
+        nodo_t *remover = l->ini;
+
         l->ini = l->ini->prox;
 
-        free(aux->titulo);
-        free(aux->texto);
-        free(aux);
+        free(remover->titulo);
+        free(remover->texto);
+        free(remover);
         
         l->tam--;
     }
 
+    if (lista_vazia(l))
+        return 1;
+
+    nodo_t *aux = l->ini;
+
     while (aux != NULL) {
         if (aux->idade > 3) {
-            nodo_t *armazena = aux->prox;
+            nodo_t *remover = aux;
+            
+            aux = aux->prox;
 
-            free(aux->titulo);
-            free(aux->texto);
-            free(aux);
+            free(remover->titulo);
+            free(remover->texto);
+            free(remover);
 
-            aux = armazena;
             l->tam--;            
-        }
-
-        aux = aux->prox;
+        } else 
+            aux = aux->prox;
     }
 
     return 1;
@@ -106,7 +111,7 @@ void envelhece_noticias(lista_t *l) {
 }
 
 int lista_vazia(lista_t *l) {
-    if (l == NULL)
+    if (l->tam == 0)
         return 1;
     return 0;
 }
@@ -120,7 +125,7 @@ void requisita(char *titulo, char *texto) {
 }
 
 void fechamento_edicao(lista_t *listaBN, lista_t *listaInf) {
-    if (listaBN->tam + listaInf->tam <= 0) {
+    if ((listaBN->tam + listaInf->tam) <= 0) {
         printf("Essa edição foi pulada por falta de notícias!\n");
         return;
     }
@@ -146,6 +151,21 @@ void fechamento_edicao(lista_t *listaBN, lista_t *listaInf) {
     }
 
     if (listaBN->tam == 1) {
+        if (listaInf->tam == 0) {
+            printf("\n%s", listaBN->ini->titulo);
+            printf("\n%s\n", listaBN->ini->texto);
+
+            listaBN->ini->idade = 4;
+
+            envelhece_noticias(listaBN);
+            envelhece_noticias(listaInf);
+
+            lista_remove(listaBN);
+            lista_remove(listaInf);
+
+            return;
+        }
+        
         printf("\n%s", listaBN->ini->titulo);
         printf("\n%s\n", listaBN->ini->texto);
 
@@ -164,21 +184,39 @@ void fechamento_edicao(lista_t *listaBN, lista_t *listaInf) {
         return;
     }
 
-    /* if (listaBN->tam == 0) */
-    printf("\n%s", listaInf->ini->titulo);
-    printf("\n%s\n", listaInf->ini->texto);
+    if (listaBN->tam == 0) {
+        if(listaInf->tam == 1) {
+            printf("\n%s", listaInf->ini->titulo);
+            printf("\n%s\n", listaInf->ini->texto);
 
-    printf("%s", listaInf->ini->prox->titulo);
-    printf("\n%s\n", listaInf->ini->prox->texto);
+            listaInf->ini->idade = 4;
 
-    listaInf->ini->idade = 4;
-    listaInf->ini->prox->idade = 4;
+            envelhece_noticias(listaBN);
+            envelhece_noticias(listaInf);
 
-    envelhece_noticias(listaBN);
-    envelhece_noticias(listaInf);
+            lista_remove(listaBN);
+            lista_remove(listaInf);
 
-    lista_remove(listaBN);
-    lista_remove(listaInf);
+            return;
+        }
+
+        printf("\n%s", listaInf->ini->titulo);
+        printf("\n%s\n", listaInf->ini->texto);
+
+        printf("%s", listaInf->ini->prox->titulo);
+        printf("\n%s\n", listaInf->ini->prox->texto);
+
+        listaInf->ini->idade = 4;
+        listaInf->ini->prox->idade = 4;
+
+        envelhece_noticias(listaBN);
+        envelhece_noticias(listaInf);
+
+        lista_remove(listaBN);
+        lista_remove(listaInf);
+
+        return;
+    }
 
     return;
 }
