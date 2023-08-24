@@ -1,5 +1,5 @@
 # Nome do programa gerado
-TARGET = jornalDINF
+TARGET = main
 
 # Compilador
 CC = gcc

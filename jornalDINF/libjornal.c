@@ -12,7 +12,6 @@ lista_t *lista_cria () {
         return NULL;
 
     nova_lista->ini = NULL;
-    nova_lista->fim = NULL;
     nova_lista->tam = 0;
 
     return nova_lista;
@@ -45,14 +44,18 @@ int lista_insere(lista_t *l, char *titulo, char *texto) {
     /* caso lista vazia */
     if (lista_vazia(l)) {
         l->ini = novo;
-        l->fim = novo;
         l->tam++;
     
         return 1;
     }
 
-    l->fim->prox = novo;
-    l->fim = novo;
+    /* caso lista não vazia */
+    nodo_t *aux = l->ini;
+    
+    while(aux->prox != NULL)
+        aux = aux->prox;
+
+    aux->prox = novo;
     l->tam++;
 
     return 1;
@@ -222,20 +225,20 @@ void fechamento_edicao(lista_t *listaBN, lista_t *listaInf) {
 }
 
 void lista_destroi(lista_t *l) {
-    if (lista_vazia(l))
+    if (l == NULL)
         return;
 
     nodo_t *aux = l->ini;
 
     while (aux != NULL) {
-        nodo_t *armazena = aux->prox;
+        nodo_t *remover = aux;
+        aux = aux->prox;
 
-        free(aux->titulo);
-        free(aux->texto);
-        free(aux);
-
-        aux = armazena;
+        free(remover->titulo);
+        free(remover->texto);
+        free(remover);
     }
 
     free(l);
+    free(aux);
 }

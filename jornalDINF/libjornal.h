@@ -9,7 +9,6 @@ typedef struct nodo {
 typedef struct lista {
     int tam;
     nodo_t *ini;
-    nodo_t *fim;
 } lista_t;
 
 /* Cria uma Lista vazia */
