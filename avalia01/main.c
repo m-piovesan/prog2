@@ -4,134 +4,142 @@
 #include <unistd.h>
 
 typedef struct {
-  char *rotulo;
-  char *tipo;
-  char *categorias;
+    char *rotulo;
+    char *tipo;
+    char *categorias;
 } atributo;
 
 void exibe_atributos(atributo *infos, int tamanho) {
-    if (infos == 0){
+    if (infos == NULL) {
         printf("O arquivo ARFF fornecido é inválido!\n");
         exit(0);
     }
 
     printf("==== ATRIBUTOS DO ARQUIVO ====\n");
-    for(int i = 0; i < tamanho; i++){
-        printf("-> Atributo #%d\n", i+1);
+    for (int i = 0; i < tamanho; i++) {
+        printf("-> Atributo #%d\n", i + 1);
         printf("Rótulo: %s\n", infos[i].rotulo);
         printf("Tipo: %s\n", infos[i].tipo);
         if (infos[i].categorias) printf("Categorias: %s\n", infos[i].categorias);
-        if (i < tamanho-1) printf("------------------------------\n");
+        if (i < tamanho - 1) printf("------------------------------\n");
     }
     printf("===============================\n");
 }
 
-// conta quantos atributos tem no arquivo
-int conta_atributos(FILE *arff){
-  char buffer[1024 + 1], *campos[2]; // buffer + vet para armazenar os campos (tamanho 2 pra testar se começa com @attribute)
-  int cont = 0;
+int conta_atributos(FILE *arff) {
+    int cont = 0;
+    char buffer[1024];
 
-  // FILE *file = fopen(arff, "r+");
+    while (fgets(buffer, sizeof(buffer), arff) != NULL) { // lê uma linha do arquivo e armazena em buffer
+        if (strstr(buffer, "@data") != NULL) { // para se a linha contém "@data"
+            break;
+        } else if (strstr(buffer, "@attribute") == buffer) {
+            cont++;
+        }
+    }
 
-  if (arff == NULL) {
-    perror("Erro ao abrir o arquivo");
-    return 1;
-  }
-
-  while (!feof(arff)) {
-    // Lendo o arquivo e descartando o caractere de nova linha (\n)
-    fscanf(arff, "%1024[^\n]", buffer);
-    fgetc(arff);
-
-    campos[0] = strtok(buffer, " ");
-      
-    for (int i = 0; i < 1; i++)
-      campos[i + 1] = strtok(NULL, " "); // O segundo parâmetro é NULL para continuar a partir da última posição
-    
-    if (!strcmp(campos[0], "@attribute"))
-      cont++;
-  }
-  
-  fclose(arff);
-  return cont;
+    return cont;
 }
 
-// para cada atributo, armazena o seu rótulo, tipo e categorias em uma estrutura
-atributo* processa_atributos(FILE *arff) {
-  if (arff == NULL) {
-    perror("Erro ao abrir o arquivo");
-    return NULL;
-  }
+atributo* processa_atributos(FILE *arff, int tamanho) {
+    atributo *infos = malloc(tamanho * sizeof(atributo));
 
-  int tamanho = conta_atributos(arff);
-  atributo *infos = malloc(tamanho * sizeof(atributo));
-
-  if (infos == NULL) {
-    perror("Erro ao alocar memória");
-    return NULL;
-  }
-
-  char buffer[1024 + 1], *campos[4]; // buffer + vet para armazenar os campos (tamanho 4 pra salvar os valores)
-
-  // ler todos os valores da linha, se for @attribute, salvar os valores
-  while(!feof(arff)) {
-    fscanf(arff, "%1024[^\n]", buffer);
-    fgetc(arff);
-
-    campos[0] = strtok(buffer, " ");
-
-    if(!strcmp(campos[0], "@attribute")) {
-      for (int i = 0; i < 3; i++) {
-        campos[i + 1] = strtok(NULL, " ");
-
-        infos[i].rotulo = strdup(campos[1]);
-        infos[i].tipo = strdup(campos[2]);
-        infos[i].categorias = strdup(campos[3]);
-      }   
+    if (infos == NULL) {
+        perror("Erro ao alocar memória para os atributos");
+        return NULL;
     }
-  }
 
-  fclose(arff);
-  return infos;
+    char buffer[1024], rotulo[1024], tipo[1024], categorias[1024];
+
+    for (int i = 0; i < tamanho; i++) {
+        if (!fgets(buffer, sizeof(buffer), arff)) {
+            perror("Erro ao ler atributo");
+            free(infos);
+            return NULL;
+        }
+
+        if (strstr(buffer, "@attribute") == buffer) { // executa se a linha contém "@attribute"
+            if (sscanf(buffer, "@attribute %s %s", rotulo, tipo) >= 2) {
+                infos[i].rotulo = strdup(rotulo);
+                infos[i].tipo = strdup(tipo);
+
+                if (strcmp(tipo, "numeric") != 0 && strcmp(tipo, "string") != 0) { // executa se o tipo não for "numeric" nem "string"
+                    char *abre_chaves = strchr(buffer, '{'); // procura pela primeira ocorrência de "{"
+                    
+                    if (abre_chaves != NULL) {
+                        char *fecha_chaves = strchr(abre_chaves, '}'); // procura pela primeira ocorrência de "}"
+                        
+                        if (fecha_chaves != NULL) {
+                            *fecha_chaves = '\0';
+                            infos[i].categorias = strdup(abre_chaves + 1);
+                        }
+                    }
+                } else {
+                    infos[i].categorias = NULL;
+                }
+            } else {
+                continue;
+            }
+        }
+    }
+
+    return infos;
 }
 
-int main(int argc, char **argv){
-  int opt, tamanho;
-  char exibicao = 0;
-  char *entrada = 0;
-  atributo *infos;
+int main(int argc, char **argv) {
+    int opt;
+    char exibicao = 0;
+    char *entrada = NULL;
 
-  while ((opt = getopt(argc, argv, "pi:")) != -1) {
-    switch (opt) { 
-    case 'i':
-      entrada = strdup(optarg);
-      break;
-    case 'p':
-      exibicao = 1;
-      break;
-    default:
-      fprintf(stderr, "Forma de uso: ./arff -i <arq_in> [-p]\n");
-      exit(1);
+    while ((opt = getopt(argc, argv, "pi:")) != -1) {
+        switch (opt) {
+            case 'i':
+                entrada = strdup(optarg);
+                break;
+            case 'p':
+                exibicao = 1;
+                break;
+            default:
+                fprintf(stderr, "Forma de uso: ./arff -i <arq_in> [-p]\n");
+                exit(1);
+        }
     }
-  }
 
-  if ( ! entrada ) {
-    fprintf(stderr, "Forma de uso: ./arff -i <arq_in> [-p]\n");
-    exit(2);
-  }
+    if (entrada == NULL) {
+        fprintf(stderr, "Forma de uso: ./arff -i <arq_in> [-p]\n");
+        exit(2);
+    }
 
-  // VOC� DEVE IMPLEMENTAR AS ROTINAS NECESS�RIAS E A CHAMADA DE FUN��ES PARA PROCESSAR OS ATRIBUTOS ARFF AQUI
-  FILE *file = fopen("car.arff", "r+");
+    FILE *arff = fopen(entrada, "r+");
 
-  tamanho = conta_atributos(file);
+    if (arff == NULL) {
+        perror("Erro ao abrir o arquivo");
+        return 3;
+    }
 
-  if (entrada) {
-    infos = processa_atributos(file);
-  }
+    int tamanho = conta_atributos(arff);
+    fseek(arff, 0, SEEK_SET);
 
-  if (exibicao){
-    exibe_atributos(infos, tamanho);
-  }
+    atributo *infos = processa_atributos(arff, tamanho);
 
-  return 0 ;
+    if (infos == NULL) {
+        return 4;
+    }
+
+    if (exibicao) {
+        exibe_atributos(infos, tamanho);
+    }
+
+    for (int i = 0; i < tamanho; i++) {
+        free(infos[i].rotulo);
+        free(infos[i].tipo);
+        if (infos[i].categorias) {
+            free(infos[i].categorias);
+        }
+    }
+
+    free(infos);
+    fclose(arff);
+
+    return 0;
 }
