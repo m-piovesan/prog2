@@ -44,6 +44,8 @@ void processa_categorias(atributo *elemento, char *categorias) {
 }
 
 // Função do A1 (com modificações para o atributo de categorias)
+/*  Problema de tratamento de espaços em branco no T2 (gera null). 
+    Não exibiu nenhuma mensagem de erro em T3 a T6(o processou como se fosse um arquivo bem formado). */
 atributo* processa_atributos(FILE *arff, int quantidade) {
     atributo *infos = malloc(quantidade * sizeof(atributo));
 
