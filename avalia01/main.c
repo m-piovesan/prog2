@@ -33,17 +33,32 @@ void exibe_atributos(atributo *infos, int tamanho) {
 int conta_atributos(FILE *arff) {
     int cont = 0;
     int testaFim = 0;
+    int contaEspacos = 0;
     char buffer[1024];
+    char *posicao;
 
+    // feof(arff);
+    // usar strtok maninho
     while (fgets(buffer, sizeof(buffer), arff) != NULL) { // lê uma linha do arquivo e armazena em buffer
         if (strstr(buffer, "@data") != NULL) { // para se a linha contém "@data"
             testaFim = 1;
             break;
         } else if (strstr(buffer, "@attribute") == buffer) { // arrumar aqui pra não contar linhas que tem mais de 2 palavras
-            cont++;
+            contaEspacos = 0;
+            posicao = strchr(buffer, ' '); // Encontra a primeira ocorrência do espaço
+
+            while (posicao != NULL) {
+                posicao = strchr(posicao + 1, ' '); // Encontra a próxima ocorrência do espaço
+                contaEspacos++;
+            }
+
+            if (contaEspacos != 2) 
+                fprintf(stderr, "Erro: Linha com formato inválido!\n");
+            else 
+                cont++;
         }
     }
-
+    
     if(!testaFim) {
         fprintf(stderr, "Erro: Arquivo ARFF inválido.\n");
         return -1;

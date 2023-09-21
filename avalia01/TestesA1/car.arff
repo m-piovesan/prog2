@@ -4,7 +4,7 @@
 
 @attribute CustomerID
 
-@attribute CustomerID numeric oi oi oi
+@attribute errado numeric oi oi oi
 @attribute salve Dealership numeric
 @attribute Showroom numeric
 @attribute ComputerSearch numeric
