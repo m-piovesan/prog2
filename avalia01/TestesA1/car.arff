@@ -1,11 +1,33 @@
-@attribute CustomerID numeric
-@attribute Dealership numeric
+
+
+
+
+@attribute CustomerID
+
+@attribute CustomerID numeric oi oi oi
+@attribute salve Dealership numeric
 @attribute Showroom numeric
 @attribute ComputerSearch numeric
 @attribute M5 numeric
 @attribute 3Series numeric
 @attribute Z4 numeric
+
+
+
 @attribute Financing numeric
+
+
+
 @attribute Purchase numeric
 
+
+@attribute piove numeric
+
+
+@attribute teste numeric
+
+@attribute teste2 numeric
+@attribut errado numeric
+
 @data
+@attribute oi numeric

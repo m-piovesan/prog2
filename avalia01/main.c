@@ -1,3 +1,5 @@
+// ./a.out -i TestesA1/car.arff -p
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,22 +27,33 @@ void exibe_atributos(atributo *infos, int tamanho) {
     }
     printf("===============================\n");
 }
+#include <stdio.h>
+#include <string.h>
 
 int conta_atributos(FILE *arff) {
     int cont = 0;
+    int testaFim = 0;
     char buffer[1024];
 
     while (fgets(buffer, sizeof(buffer), arff) != NULL) { // lê uma linha do arquivo e armazena em buffer
         if (strstr(buffer, "@data") != NULL) { // para se a linha contém "@data"
+            testaFim = 1;
             break;
-        } else if (strstr(buffer, "@attribute") == buffer) {
+        } else if (strstr(buffer, "@attribute") == buffer) { // arrumar aqui pra não contar linhas que tem mais de 2 palavras
             cont++;
         }
+    }
+
+    if(!testaFim) {
+        fprintf(stderr, "Erro: Arquivo ARFF inválido.\n");
+        return -1;
     }
 
     return cont;
 }
 
+/*  Problema de tratamento de espaços em branco no T2 (gera null). 
+    Não exibiu nenhuma mensagem de erro em T3 a T6(o processou como se fosse um arquivo bem formado). */
 atributo* processa_atributos(FILE *arff, int tamanho) {
     atributo *infos = malloc(tamanho * sizeof(atributo));
 
@@ -53,13 +66,24 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
 
     for (int i = 0; i < tamanho; i++) {
         if (!fgets(buffer, sizeof(buffer), arff)) {
-            perror("Erro ao ler atributo");
+            printf("Erro ao ler atributo");
             free(infos);
-            return NULL;
+            break;
         }
 
+        int linha_em_branco = 1;
+
+        if(buffer[0] != '\n') 
+            linha_em_branco = 0;
+        
+        if (linha_em_branco) {
+            fprintf(stderr, "Erro: Linha em branco encontrada.\n");
+            i--; // Volte uma posição no loop para processar o próximo atributo
+            continue;
+        }
+    
         if (strstr(buffer, "@attribute") == buffer) { // executa se a linha contém "@attribute"
-            if (sscanf(buffer, "@attribute %s %s", rotulo, tipo) >= 2) {
+            if (sscanf(buffer, "@attribute %s %s", rotulo, tipo) == 2) {
                 infos[i].rotulo = strdup(rotulo);
                 infos[i].tipo = strdup(tipo);
 
@@ -74,10 +98,12 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
                             infos[i].categorias = strdup(abre_chaves + 1);
                         }
                     }
-                } else {
+                } else 
                     infos[i].categorias = NULL;
-                }
+                
             } else {
+                fprintf(stderr, "Erro: Formato inválido para o atributo\n");
+                i--; // Volte uma posição no loop para processar o próximo atributo
                 continue;
             }
         }
