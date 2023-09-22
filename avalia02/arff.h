@@ -5,6 +5,7 @@ typedef struct {
   char *rotulo;
   char *tipo;
   char *categorias;
+  int quantidade_categorias;
 } atributo;
 
 void exibe_atributos(atributo *infos, int quantidade);

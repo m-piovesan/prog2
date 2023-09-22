@@ -7,6 +7,11 @@
     chamada no contexto da função "processa_atributos" (observem que essa modificação
     terá impacto em outras funções, como "exibe_atributos").
 
+    // salvar as categorias igual no A1
+    // chamar a função lá, daí salvar o valor das categorias num buffer
+    // ir lendo usando vírgula como separador
+    // ir salvando no vetor de strings
+
 # 2 - verificar a validade das linhas:
  *  verificar se a quantidade adequada de atributos existe e se cada um 
     desses atributos apresenta um dado compatível com o tipo designado
@@ -82,8 +87,3 @@
 
 ---------------------------------------------------------------------------------------
 # correções:
-1 - ler a linha (máx 1024)
-2 - se for vazia, ignora e pula para próxima + exibe mensagem de erro
-3 - testar se começa com "attribute", cc: mensagem de erro
-4 - guardar as coisas de acordo com o que se pede (acho que já tá fazendo)
-5 - se tiver mais de 3 "palavras", mensagem de erro;
