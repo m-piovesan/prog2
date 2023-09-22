@@ -77,7 +77,7 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
         return NULL;
     }
 
-    char buffer[1024], rotulo[1024], tipo[1024], categorias[1024];
+    char buffer[1024], rotulo[1024], tipo[1024], categorias[1024], testaErro[1024];
 
     for (int i = 0; i < tamanho; i++) {
         if (!fgets(buffer, sizeof(buffer), arff)) {
@@ -96,10 +96,9 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
             i--; // Volte uma posição no loop para processar o próximo atributo
             continue;
         }
-    
-        if (strstr(buffer, "@attribute") == buffer) { // executa se a linha contém "@attribute"
-            if (sscanf(buffer, "@attribute %s %s", rotulo, tipo) == 2) {
-                infos[i].rotulo = strdup(rotulo);
+
+        if ((sscanf(buffer, "@attribute %s %s %s", rotulo, tipo, testaErro)) == 2) {
+            infos[i].rotulo = strdup(rotulo);
                 infos[i].tipo = strdup(tipo);
 
                 if (strcmp(tipo, "numeric") != 0 && strcmp(tipo, "string") != 0) { // executa se o tipo não for "numeric" nem "string"
@@ -115,12 +114,10 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
                     }
                 } else 
                     infos[i].categorias = NULL;
-                
-            } else {
-                fprintf(stderr, "Erro: Formato inválido para o atributo\n");
-                i--; // Volte uma posição no loop para processar o próximo atributo
-                continue;
-            }
+        } else {
+            fprintf(stderr, "Erro: Formato inválido para o atributo\n");
+            i--; // Volte uma posição no loop para processar o próximo atributo
+            continue;
         }
     }
 
