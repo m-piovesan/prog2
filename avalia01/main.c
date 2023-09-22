@@ -37,13 +37,11 @@ int conta_atributos(FILE *arff) {
     char buffer[1024];
     char *posicao;
 
-    // feof(arff);
-    // usar strtok maninho
     while (fgets(buffer, sizeof(buffer), arff) != NULL) { // lê uma linha do arquivo e armazena em buffer
         if (strstr(buffer, "@data") != NULL) { // para se a linha contém "@data"
             testaFim = 1;
             break;
-        } else if (strstr(buffer, "@attribute") == buffer) { // arrumar aqui pra não contar linhas que tem mais de 2 palavras
+        } else if (strstr(buffer, "@attribute") == buffer) {
             contaEspacos = 0;
             posicao = strchr(buffer, ' '); // Encontra a primeira ocorrência do espaço
 
@@ -52,9 +50,7 @@ int conta_atributos(FILE *arff) {
                 contaEspacos++;
             }
 
-            if (contaEspacos != 2) 
-                fprintf(stderr, "Erro: Linha com formato inválido!\n");
-            else 
+            if (contaEspacos == 2) 
                 cont++;
         }
     }
@@ -99,21 +95,22 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
 
         if ((sscanf(buffer, "@attribute %s %s %s", rotulo, tipo, testaErro)) == 2) {
             infos[i].rotulo = strdup(rotulo);
-                infos[i].tipo = strdup(tipo);
+            infos[i].tipo = strdup(tipo);
 
-                if (strcmp(tipo, "numeric") != 0 && strcmp(tipo, "string") != 0) { // executa se o tipo não for "numeric" nem "string"
-                    char *abre_chaves = strchr(buffer, '{'); // procura pela primeira ocorrência de "{"
+            if (strcmp(tipo, "numeric") != 0 && strcmp(tipo, "string") != 0) { // executa se o tipo não for "numeric" nem "string"
+                char *abre_chaves = strchr(buffer, '{'); // procura pela primeira ocorrência de "{"
+                infos[i].tipo = strdup("categoric");
+
+                if (abre_chaves != NULL) {
+                    char *fecha_chaves = strchr(abre_chaves, '}'); // procura pela primeira ocorrência de "}"
                     
-                    if (abre_chaves != NULL) {
-                        char *fecha_chaves = strchr(abre_chaves, '}'); // procura pela primeira ocorrência de "}"
-                        
-                        if (fecha_chaves != NULL) {
-                            *fecha_chaves = '\0';
-                            infos[i].categorias = strdup(abre_chaves + 1);
-                        }
+                    if (fecha_chaves != NULL) {
+                        *fecha_chaves = '\0';
+                        infos[i].categorias = strdup(abre_chaves + 1);
                     }
-                } else 
-                    infos[i].categorias = NULL;
+                }
+            } else 
+                infos[i].categorias = NULL;
         } else {
             fprintf(stderr, "Erro: Formato inválido para o atributo\n");
             i--; // Volte uma posição no loop para processar o próximo atributo

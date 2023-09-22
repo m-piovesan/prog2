@@ -1,9 +1,4 @@
-
-
-
-
 @attribute CustomerID
-
 @attribute errado numeric oi oi oi
 @attribute salve Dealership numeric
 @attribute Showroom numeric
@@ -11,21 +6,10 @@
 @attribute M5 numeric
 @attribute 3Series numeric
 @attribute Z4 numeric
-
-
-
 @attribute Financing numeric
-
-
-
 @attribute Purchase numeric
-
-
 @attribute piove numeric
-
-
 @attribute teste numeric
-
 @attribute teste2 numeric
 @attribut errado numeric
 
