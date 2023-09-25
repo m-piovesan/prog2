@@ -69,20 +69,41 @@ int conta_atributos(FILE *arff) {
 }
 
 // Recebe uma string com as categorias e atualiza o elemento com um vetor de strings 
+// tá vindo só a primeira categoria no parâmetro
 void processa_categorias(atributo *elemento, char *categorias) {
-    char buffer[1025];
-    int cont = 0;
+    int i = 0;
+    char buffer[1024];
+
+    // debug: printf("%s\n", categorias); categorias estão vindo certas
+
+    if (elemento == NULL || categorias == NULL) {
+        perror("Erro: elemento vazio!\n");
+        return;
+    }
+
+    elemento->quantidade_categorias = contar_valores(categorias);
+    elemento->categorias = (char **)malloc(sizeof(char *) * elemento->quantidade_categorias);
+    
+    if (elemento->categorias == NULL) {
+        perror("Erro ao alocar memória para categorias!\n");
+        return;
+    }
 
     strcpy(buffer, categorias);
     char *token = strtok(buffer, ",");
 
     while (token != NULL) {
-        elemento->categorias[cont] = strdup(token);
-        token = strtok(NULL, ",");
-        cont++;
-    }
+        elemento->categorias[i] = strdup(token); // Aloca memória para a categoria e copia o token
+        // debug:printf("Categoria: %s\n", token); só printa o primeiro valor
 
-    elemento->quantidade_categorias = cont;
+        if (elemento->categorias[i] == NULL) {
+            perror("Erro ao alocar memória para categoria!\n");
+            return;
+        }
+
+        token = strtok(NULL, ",");
+        i++;
+    }
 
     return;
 }
@@ -92,22 +113,24 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
     atributo *infos = malloc(tamanho * sizeof(atributo));
 
     if (infos == NULL) {
-        perror("Erro ao alocar memória para os atributos");
+        perror("Erro ao alocar memória para os atributos\n");
         return NULL;
     }
 
-    char buffer[1024], rotulo[1024], tipo[1024], categorias[1024], testaErro[1024];
+    char buffer[1024], rotulo[1024], tipo[1024], testaErro[1024];
+
+    rewind(arff);
 
     for (int i = 0; i < tamanho; i++) {
         if (!fgets(buffer, sizeof(buffer), arff)) {
-            printf("Erro ao ler atributo");
+            printf("Erro ao ler atributo\n");
             free(infos);
             break;
         }
 
         int linha_em_branco = 1;
 
-        if(buffer[0] != '\n') 
+        if (buffer[0] != '\n') 
             linha_em_branco = 0;
         
         if (linha_em_branco) {
@@ -120,26 +143,26 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
             infos[i].rotulo = strdup(rotulo);
             infos[i].tipo = strdup(tipo);
 
-            if (strcmp(tipo, "numeric") != 0 && strcmp(tipo, "string") != 0) { // executa se o tipo não for "numeric" nem "string"
-                char *abre_chaves = strchr(buffer, '{'); // procura pela primeira ocorrência de "{"
-                infos[i].tipo = strdup("categoric");
+            if (strcmp(tipo, "numeric") != 0 && strcmp(tipo, "string") != 0) {
+                char *abre_chaves = strchr(buffer, '{');
 
                 if (abre_chaves != NULL) {
-                    char *fecha_chaves = strchr(abre_chaves, '}'); // procura pela primeira ocorrência de "}"
-                    
+                    char *fecha_chaves = strchr(abre_chaves, '}');
+
                     if (fecha_chaves != NULL) {
                         *fecha_chaves = '\0';
-                        infos[i].categorias = strdup(abre_chaves + 1);
+                        char *categorias = strdup(abre_chaves + 1);
+
+                        processa_categorias(&infos[i], categorias);
+                        free(categorias); // Liberar a memória alocada para categorias após o processamento
                     }
                 }
 
-                processa_categorias(&infos[i], infos[i].categorias); // atualiza o elemento com um vetor de strings
+                infos[i].tipo = strdup("categoric");
             } else 
                 infos[i].categorias = NULL;
         } else {
-            fprintf(stderr, "Erro: Formato inválido para o atributo\n");
-            i--; // Volte uma posição no loop para processar o próximo atributo
-            continue;
+            return NULL;
         }
     }
 
@@ -150,5 +173,93 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
     valida cada elemento em todas as linhas de dados em relação a um vetor de atributos
     fornecido como argumento. */
 void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
+<<<<<<< HEAD
 
 }
+=======
+    char buffer[2048];
+    int linha = 0;
+    int encontrou_data = 0;
+
+    // Ler o arquivo até encontrar a linha "@data"
+    while (fgets(buffer, sizeof(buffer), arff)) {
+        if (!strcmp(buffer, "@data")) {
+            encontrou_data = 1;
+            break;
+        }
+    }
+
+    if (!encontrou_data) {
+        printf("Erro: Arquivo com formato inválido!\n");
+        return;
+    }
+
+    // Lê cada linha de dados do arquivo
+    while (fgets(buffer, sizeof(buffer), arff) != NULL) {
+        linha++;
+
+        // Verifica se a linha está em branco e a ignora
+        if (buffer[0] == '\n') 
+            continue;
+
+        char *token = strtok(buffer, ",");
+
+        // Loop para validar cada atributo na linha
+        for (int i = 0; i < quantidade; i++) {
+            // Verifica se não há tokens suficientes na linha
+            if (token == NULL) {
+                fprintf(stderr, "Erro: Linha %d: Quantidade de atributos inválida.\n", linha);
+                return;
+            }
+
+            // Verifica se o tipo de atributo é "numeric"
+            if (!strcmp(atributos[i].tipo, "numeric")) {
+                char *endptr;
+                long number = strtol(token, &endptr, 10); // Converte a string para um número
+
+                // Verifica se o token não é um número válido ou se não é um número inteiro (erro se for)
+                if ((*endptr != '\0') || (token == endptr)) {
+                    fprintf(stderr, "Erro: valor inválido!");
+                    return;
+                }
+            }
+            // Verifica se o tipo de atributo é "categoric"
+            else if (!strcmp(atributos[i].tipo, "categoric")) {
+                int j;
+                
+                // Loop para verificar se o token corresponde a uma categoria válida
+                for (j = 0; j < atributos[i].quantidade_categorias; j++)
+                    if (!strcmp(token, atributos[i].categorias[j])) break;
+                
+                // Se o loop terminar sem encontrar uma correspondência, é relatado um erro
+                if (j == atributos[i].quantidade_categorias) {
+                    fprintf(stderr, "Erro: Linha %d: Valor inválido para o atributo %s.\n", linha, atributos[i].rotulo);
+                    return;
+                }
+            }
+
+            // Avança para o próximo token
+            token = strtok(NULL, ",");
+        }
+
+        // Verifica se ainda há tokens não consumidos na linha (erro se houver)
+        if (token != NULL) {
+            fprintf(stderr, "Erro: Linha %d: Quantidade de atributos inválida.\n", linha);
+            return;
+        }
+    }
+}
+
+// Função para contar quantos valores estão no buffer
+int contar_valores(char *buffer) {
+    int cont = 0;
+    char *token = strtok(buffer, ",");
+    
+    while (token != NULL) {
+        cont++;
+        token = strtok(NULL, ",");
+    }
+
+    return cont;
+}
+>>>>>>> 1a94dcc (almost all primary functions done, still need to focus on log part)

@@ -53,12 +53,14 @@ int main(int argc, char **argv){
     }
 
     FILE *arquivo = fopen(entrada, "r");
+
     if (!arquivo){
         fprintf(stderr, "Não foi possível abrir o arquivo informado!\n");
         exit(3);
     }
 
     int qntd_atributos = conta_atributos(arquivo);
+
     if (!qntd_atributos){
         fprintf(stderr, "Existem erros no arquivo fornecido!\n");
         exit(4);

@@ -1,10 +1,11 @@
 #ifndef __ARFF__
 #define __ARFF__
+#define MAX_CATEGORIAS 250
 
 typedef struct {
   char *rotulo;
   char *tipo;
-  char *categorias;
+  char **categorias;
   int quantidade_categorias;
 } atributo;
 
@@ -17,5 +18,7 @@ void processa_categorias(atributo *elemento, char *categorias);
 atributo* processa_atributos(FILE *arff, int quantidade);
 
 void valida_arff(FILE *arff, atributo *atributos, int quantidade);
+
+int contar_valores(char *buffer);
 
 #endif
