@@ -1,3 +1,14 @@
+typedef struct {
+    char *rotulo;
+    int *qtd_ataques;
+} infos_ataque;
+
+typedef struct {
+    char *rotulo;
+    int *qtd_ataques;
+    double *media;
+} infos_medias_ataques;
+
 // Gerar um relatório de todos os ataques ocorridos e o número de ocorrências no
 // conjunto de dados (nome do arquivo de saída: "R_ATAQUES.txt"); 
 void contabiliza_ataques();

@@ -50,7 +50,7 @@
  *  O arquivo "R_ENTIDADES.txt" deve conter APENAS linhas no seguinte formato:
     endereço_origem;classificação
 
-    // let o SRC_ADD, cada linha é uma ocorrência, salvar numa lista também se pá
+    // ler o SRC_ADD, cada linha é uma ocorrência, salvar numa lista também se pá
         não entendi direito, ver netlog pra ter exemplo
 
 # 5 - arquivo de médias: R_TAMANHO.txt

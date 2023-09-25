@@ -173,13 +173,11 @@ atributo* processa_atributos(FILE *arff, int tamanho) {
     valida cada elemento em todas as linhas de dados em relação a um vetor de atributos
     fornecido como argumento. */
 void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
-<<<<<<< HEAD
-
-}
-=======
     char buffer[2048];
     int linha = 0;
     int encontrou_data = 0;
+
+    rewind(arff);
 
     // Ler o arquivo até encontrar a linha "@data"
     while (fgets(buffer, sizeof(buffer), arff)) {
@@ -262,4 +260,3 @@ int contar_valores(char *buffer) {
 
     return cont;
 }
->>>>>>> 1a94dcc (almost all primary functions done, still need to focus on log part)

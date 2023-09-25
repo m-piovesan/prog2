@@ -1,6 +1,5 @@
 #ifndef __ARFF__
 #define __ARFF__
-#define MAX_CATEGORIAS 250
 
 typedef struct {
   char *rotulo;
