@@ -69,19 +69,16 @@ int conta_atributos(FILE *arff) {
 }
 
 // Recebe uma string com as categorias e atualiza o elemento com um vetor de strings 
-// tá me fudendo legal
 void processa_categorias(atributo *elemento, char *categorias) {
     int i = 0;
     char buffer[1024];
-
-    // debug: printf("%s\n", categorias); categorias estão vindo certas
-    printf("\nRecebidos: %s\n", categorias);
 
     if (elemento == NULL || categorias == NULL) {
         perror("Erro: elemento vazio!\n");
         return;
     }
 
+    strcpy(buffer, categorias); 
     elemento->quantidade_categorias = contar_valores(categorias);
     elemento->categorias = malloc(elemento->quantidade_categorias * sizeof(char *));
 
@@ -89,24 +86,17 @@ void processa_categorias(atributo *elemento, char *categorias) {
         perror("Erro ao alocar memória para categorias!\n");
         return;
     }
-
-    strcpy(buffer, categorias);
-    //printf("\no que tem no buffer?: %s\n", buffer);
     
     char *token = strtok(buffer, ",");
 
     while (token != NULL) {
-        elemento->categorias[i] = strdup(token); // Aloca memória para a categoria e copia o token
-        // debug:printf("Categoria: %s\n", token); só printa o primeiro valor
-        printf("Categoria: %s\n", token);
-    
+        elemento->categorias[i] = strdup(token); // Aloca memória para a categoria e copia o token    
         if (elemento->categorias[i] == NULL) {
             perror("Erro ao alocar memória para categoria!\n");
             return;
         }        
 
         token = strtok(NULL, ",");
-        printf("Categoria2: %s\n", token);
         i++;
     }
 
@@ -220,8 +210,8 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
                 long number = strtol(token, &endptr, 10); // Converte a string para um número
 
                 // Verifica se o token não é um número válido ou se não é um número inteiro (erro se for)
-                if ((*endptr != '\0') || (token == endptr)) {
-                    fprintf(stderr, "Erro: valor inválido!");
+                if ((token == endptr)) {
+                    fprintf(stderr, "Erro: valor inválido!\n");
                     return;
                 }
             }
@@ -229,6 +219,8 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
             else if (strstr(atributos[i].tipo, "categoric") != NULL) {
                 int j;
                 
+                printf("teste categoric -------------\n");
+
                 // Loop para verificar se o token corresponde a uma categoria válida
                 for (j = 0; j < atributos[i].quantidade_categorias; j++)
                     if (strstr(token, atributos[i].categorias[j]) != NULL) break;
@@ -240,6 +232,9 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
                 }
             }
 
+
+            printf("teste categoric2\n");
+
             // Avança para o próximo token
             token = strtok(NULL, ",");
         }
@@ -250,6 +245,8 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
             return;
         }
     }
+
+    printf("Arquivo ARFF válido!\n");
 }
 
 // Função para contar quantos valores estão no buffer (separados por vírgula)
