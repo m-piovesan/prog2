@@ -1,3 +1,5 @@
+// acho que posso usar uma struct só, dá pra ignorar o media se não for usar tlg
+
 typedef struct {
     char *rotulo;
     int *qtd_ataques;

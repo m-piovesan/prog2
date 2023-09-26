@@ -33,7 +33,7 @@ void exibe_atributos(atributo *infos, int quantidade) {
     printf("===============================\n");
 }
 
-// Função do A1
+// Função que recebe um arquivo arff e conta as linhas (atributos) válidas
 int conta_atributos(FILE *arff) {
     int cont, testaFim, contaEspacos;
     char buffer[1024];
@@ -69,6 +69,7 @@ int conta_atributos(FILE *arff) {
 }
 
 // Recebe uma string com as categorias e atualiza o elemento com um vetor de strings 
+// tá me fudendo legal
 void processa_categorias(atributo *elemento, char *categorias) {
     int i = 0;
     char buffer[1024];
@@ -83,7 +84,6 @@ void processa_categorias(atributo *elemento, char *categorias) {
 
     elemento->quantidade_categorias = contar_valores(categorias);
     elemento->categorias = malloc(elemento->quantidade_categorias * sizeof(char *));
-    
 
     if (elemento->categorias == NULL) {
         perror("Erro ao alocar memória para categorias!\n");
@@ -200,8 +200,7 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
         linha++;
 
         // Verifica se a linha está em branco e a ignora
-        if (buffer[0] == '\n') 
-            continue;
+        if (buffer[0] == '\n') continue;
 
         char *token = strtok(buffer, ",");
 
@@ -213,10 +212,10 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
                 return;
             }
 
-            printf("Token: %s\n", token);
+            //printf("Token: %s\n", token);
 
             // Verifica se o tipo de atributo é "numeric"
-            if (strcmp(atributos[i].tipo, "numeric") == 0) {
+            if (strstr(atributos[i].tipo, "numeric") != NULL) {
                 char *endptr;
                 long number = strtol(token, &endptr, 10); // Converte a string para um número
 
@@ -227,12 +226,12 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
                 }
             }
             // Verifica se o tipo de atributo é "categoric"
-            else if (strcmp(atributos[i].tipo, "categoric") == 0) {
+            else if (strstr(atributos[i].tipo, "categoric") != NULL) {
                 int j;
                 
                 // Loop para verificar se o token corresponde a uma categoria válida
                 for (j = 0; j < atributos[i].quantidade_categorias; j++)
-                    if (!strcmp(token, atributos[i].categorias[j])) break;
+                    if (strstr(token, atributos[i].categorias[j]) != NULL) break;
                 
                 // Se o loop terminar sem encontrar uma correspondência, é relatado um erro
                 if (j == atributos[i].quantidade_categorias) {
@@ -253,7 +252,7 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
     }
 }
 
-// Função para contar quantos valores estão no buffer
+// Função para contar quantos valores estão no buffer (separados por vírgula)
 int contar_valores(char *buffer) {
     int cont = 0;
     char *token = strtok(buffer, ",");

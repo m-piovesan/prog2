@@ -69,7 +69,7 @@ int main(int argc, char **argv){
    
     atributo *dados_atributos = processa_atributos(arquivo, qntd_atributos);
 
-    if (exibicao){
+    if (exibicao) {
         exibe_atributos(dados_atributos, qntd_atributos);
     }
 
@@ -77,22 +77,20 @@ int main(int argc, char **argv){
         valida_arff(arquivo, dados_atributos, qntd_atributos);
     }
     
-    if (ataques){
+    if (ataques) {
         contabiliza_ataques(arquivo, dados_atributos, qntd_atributos);
     }
     
-    if (entidades){
-        rewind(arquivo);
+    if (entidades) {
         contabiliza_enderecos(arquivo, dados_atributos, qntd_atributos);
     }
     
     if (tamanho){
-        rewind(arquivo);
         media_ataques(arquivo, dados_atributos, qntd_atributos);
     }
     
     if (firewall){
-        // Chamar a função de geração de arquivo de firewall.
+        gera_blacklist();
     }
     
     return 0;
