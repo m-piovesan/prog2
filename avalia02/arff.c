@@ -202,8 +202,6 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
                 return;
             }
 
-            //printf("Token: %s\n", token);
-
             // Verifica se o tipo de atributo é "numeric"
             if (strstr(atributos[i].tipo, "numeric") != NULL) {
                 char *endptr;
@@ -219,8 +217,6 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
             else if (strstr(atributos[i].tipo, "categoric") != NULL) {
                 int j;
                 
-                printf("teste categoric -------------\n");
-
                 // Loop para verificar se o token corresponde a uma categoria válida
                 for (j = 0; j < atributos[i].quantidade_categorias; j++)
                     if (strstr(token, atributos[i].categorias[j]) != NULL) break;
@@ -231,9 +227,6 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
                     return;
                 }
             }
-
-
-            printf("teste categoric2\n");
 
             // Avança para o próximo token
             token = strtok(NULL, ",");
