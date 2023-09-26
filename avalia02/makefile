@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall
 TARGET = meu_programa
-SRCS = main.c arff.c
+SRCS = main.c arff.c log.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(TARGET)

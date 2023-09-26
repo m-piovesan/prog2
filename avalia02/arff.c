@@ -69,12 +69,12 @@ int conta_atributos(FILE *arff) {
 }
 
 // Recebe uma string com as categorias e atualiza o elemento com um vetor de strings 
-// tá vindo só a primeira categoria no parâmetro
 void processa_categorias(atributo *elemento, char *categorias) {
     int i = 0;
     char buffer[1024];
 
     // debug: printf("%s\n", categorias); categorias estão vindo certas
+    printf("\nRecebidos: %s\n", categorias);
 
     if (elemento == NULL || categorias == NULL) {
         perror("Erro: elemento vazio!\n");
@@ -82,26 +82,31 @@ void processa_categorias(atributo *elemento, char *categorias) {
     }
 
     elemento->quantidade_categorias = contar_valores(categorias);
-    elemento->categorias = (char **)malloc(sizeof(char *) * elemento->quantidade_categorias);
+    elemento->categorias = malloc(elemento->quantidade_categorias * sizeof(char *));
     
+
     if (elemento->categorias == NULL) {
         perror("Erro ao alocar memória para categorias!\n");
         return;
     }
 
     strcpy(buffer, categorias);
+    //printf("\no que tem no buffer?: %s\n", buffer);
+    
     char *token = strtok(buffer, ",");
 
     while (token != NULL) {
         elemento->categorias[i] = strdup(token); // Aloca memória para a categoria e copia o token
         // debug:printf("Categoria: %s\n", token); só printa o primeiro valor
-
+        printf("Categoria: %s\n", token);
+    
         if (elemento->categorias[i] == NULL) {
             perror("Erro ao alocar memória para categoria!\n");
             return;
-        }
+        }        
 
         token = strtok(NULL, ",");
+        printf("Categoria2: %s\n", token);
         i++;
     }
 
@@ -177,11 +182,9 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
     int linha = 0;
     int encontrou_data = 0;
 
-    rewind(arff);
-
     // Ler o arquivo até encontrar a linha "@data"
     while (fgets(buffer, sizeof(buffer), arff)) {
-        if (!strcmp(buffer, "@data")) {
+        if (strstr(buffer, "@data") != NULL) { // para se a linha contém "@data"
             encontrou_data = 1;
             break;
         }
@@ -210,8 +213,10 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
                 return;
             }
 
+            printf("Token: %s\n", token);
+
             // Verifica se o tipo de atributo é "numeric"
-            if (!strcmp(atributos[i].tipo, "numeric")) {
+            if (strcmp(atributos[i].tipo, "numeric") == 0) {
                 char *endptr;
                 long number = strtol(token, &endptr, 10); // Converte a string para um número
 
@@ -222,7 +227,7 @@ void valida_arff(FILE *arff, atributo *atributos, int quantidade) {
                 }
             }
             // Verifica se o tipo de atributo é "categoric"
-            else if (!strcmp(atributos[i].tipo, "categoric")) {
+            else if (strcmp(atributos[i].tipo, "categoric") == 0) {
                 int j;
                 
                 // Loop para verificar se o token corresponde a uma categoria válida

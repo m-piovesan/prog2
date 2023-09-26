@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "arff.h"
+#include "log.h"
 
 #define HELP "Forma de uso: ./arff -i <arq_in> [-p -v -a -b -c -d]\n"
 
@@ -72,21 +73,22 @@ int main(int argc, char **argv){
         exibe_atributos(dados_atributos, qntd_atributos);
     }
 
-    if (validacao){
-        rewind(arquivo);
+    if (validacao) {
         valida_arff(arquivo, dados_atributos, qntd_atributos);
     }
     
     if (ataques){
-        // Chamar a função de relatórios de ataque;
+        contabiliza_ataques(arquivo, dados_atributos, qntd_atributos);
     }
     
     if (entidades){
-        // Chamar a função de relatórios de entidade;
+        rewind(arquivo);
+        contabiliza_enderecos(arquivo, dados_atributos, qntd_atributos);
     }
     
     if (tamanho){
-        // Chamar a função de relatórios de tamanho;
+        rewind(arquivo);
+        media_ataques(arquivo, dados_atributos, qntd_atributos);
     }
     
     if (firewall){
