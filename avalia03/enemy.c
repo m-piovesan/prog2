@@ -68,7 +68,7 @@ void clean_shots(shot_sentinel *list){
 //  Se o tiro acertar um alvo, ou sair do tabuleiro, ele deve ser removido da lista
 //  Caso contrário, ele deve "andar" uma casa (sqm) à frente
 void update_shots(space *board, shot_sentinel *list){
-	if (list->first == NULL) { // tá vindo vazio
+	if (list->first == NULL) {
 		perror("Erro ao atualizar lista de tiros: elemento vazio!\n");
 		return;
 	}
@@ -82,19 +82,16 @@ void update_shots(space *board, shot_sentinel *list){
 	shot *q = NULL; // ponteiro para o tiro anterior ao tiro apontado por p
 
 	while (p != NULL) {
-		if (p->position_y == 0 || p->position_y == board->max_y) {
-			p = remove_shot(p, q, list);
-			continue;
-		}
+		int new_position_y = p->position_y + 1; // Atualiza a nova posição do tiro
 
-		// if (board->map[p->position_y][p->position_x].entity != NULL) {
-		// 	p = remove_shot(p, q, list);
-		// 	printf("Tiro acertou um inimigo!\n");
-		// 	continue;
-		// }
-
-		p->position_y++;
-
+        if (new_position_y >= 0 && new_position_y <= board->max_y) {            
+            board->map[p->position_y][p->position_x].entity = NULL; // remove o tiro da posição anterior no tabuleiro            
+            board->map[new_position_y][p->position_x].entity = p; // atualiza a nova posição do tiro no tabuleiro
+            
+            p->position_y = new_position_y;
+        } else 
+            p = remove_shot(p, q, list); // se o tiro saiu do tabuleiro, tira da lista
+        
 		q = p;
 		p = p->next;
 	}

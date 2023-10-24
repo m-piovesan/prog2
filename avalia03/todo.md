@@ -40,3 +40,8 @@
         - Esta função remove um inimigo/alien ao tabuleiro, realizando a sua desalocação.
 
     * As funções add_enemy e remove_enemy devem verificar se as coordenadas do inimigo/alien são válidas e retornar código diferente de zero em caso de erro.
+
+O tabuleiro e o posicionamento inicial dos tiros estão certos, porém não há movimentação dos projéteis pelo mapa.
+O mesmo problema de T1 se repete em T3. No T4, até identifica o erro, mas não o trata no programa, causando um segmentation fault.
+Boa indentação e código com comentários; alguns testes não foram observados (ponteiro nulo, por exemplo).
+Também, existem algumas funcionalidades não implementadas, como a própria movimentação do projétil, o que não pode ser avaliado.

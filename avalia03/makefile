@@ -14,3 +14,4 @@ $(TARGET): $(OBJS)
 
 clean:
 	rm -f $(TARGET) $(OBJS)
+	find . -type f -name "*.txt" -exec rm -f {} \;
