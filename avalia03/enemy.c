@@ -115,11 +115,17 @@ shot* straight_shot(space *board, shot_sentinel *list, enemy *shooter) {
 	new_shot->position_y = shooter->position_y;
 	new_shot->next = NULL;
 
-	if (list->first == NULL) {
+	if (list->first == NULL) { // se lista vazia, novo tiro será o primeiro e o último da lista
 		list->first = new_shot;
 		list->last  = new_shot;
+        
 		return new_shot;
-	}
+	} else if (list->first == list->last) { // se apenas um tiro na lista, o novo será o último da lista
+        list->first->next = new_shot;
+        list->last = new_shot;
+
+        return new_shot;
+    }
 
 	list->last->next = new_shot;
 	list->last = new_shot;

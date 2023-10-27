@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall
-TARGET = space
+TARGET = A3
 SRCS = A3.c enemy.c space.c
 OBJS = $(SRCS:.c=.o)
 
