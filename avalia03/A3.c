@@ -1,3 +1,4 @@
+// ./A3 -y 10 -x 6 -e 6 -r 10 -o output.txt
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
