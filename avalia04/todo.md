@@ -4,7 +4,7 @@
 
 # NAVE
 [X] - andar para esq/dir
-[ ] - atirar caso não exista um projétil seu na coluna
+[X] - atirar caso não exista um projétil seu na coluna (edit: kinda did it kkkkkkkkkkkk)
 [X] - iniciar com três vidas, sendo que uma vida é removida cada vez que a mesma é acertada
 [ ] - uma vida adicionada a cada fim de rodada (máx 5)
 
@@ -25,3 +25,5 @@
 [ ] - mexer pra acabar quando não tiver mais nenhuma nave viva
 [X] - arrumar os tiros a cada tanto tempo (edit: colocar uma struct pistola na nave pra eu saber que o tiro anterior ainda tá em movimento ou não)
 [X] - tornar obstáculos reais
+[ ] - mudar nome dos aliens
+[ ] - modularizar tudo

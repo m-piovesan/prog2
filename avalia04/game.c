@@ -286,8 +286,7 @@ void audio_init()
     must_init(sample_explode[1], "explode[1] sample");
 }
 
-void audio_deinit()
-{
+void audio_deinit() {
     al_destroy_sample(sample_shot);
     al_destroy_sample(sample_explode[0]);
     al_destroy_sample(sample_explode[1]);
@@ -296,8 +295,7 @@ void audio_deinit()
 
 // --- fx ---
 
-typedef struct FX
-{
+typedef struct FX {
     int x, y;
     int frame;
     bool spark;
@@ -307,14 +305,12 @@ typedef struct FX
 #define FX_N 128
 FX fx[FX_N];
 
-void fx_init()
-{
+void fx_init() {
     for(int i = 0; i < FX_N; i++)
         fx[i].used = false;
 }
 
-void fx_add(bool spark, int x, int y)
-{
+void fx_add(bool spark, int x, int y) {
     if(!spark)
         al_play_sample(sample_explode[between(0, 2)], 0.75, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
 
@@ -332,8 +328,7 @@ void fx_add(bool spark, int x, int y)
     }
 }
 
-void fx_update()
-{
+void fx_update() {
     for(int i = 0; i < FX_N; i++)
     {
         if(!fx[i].used)
@@ -348,8 +343,7 @@ void fx_update()
     }
 }
 
-void fx_draw()
-{
+void fx_draw() {
     for(int i = 0; i < FX_N; i++)
     {
         if(!fx[i].used)
@@ -371,8 +365,7 @@ void fx_draw()
 
 // --- shots ---
 
-typedef struct SHOT
-{
+typedef struct SHOT {
     int x, y, dx, dy;
     int frame;
     bool ship;
@@ -403,8 +396,7 @@ bool shots_add(bool ship, bool straight, int x, int y) {
 
         shots[i].ship = ship;
 
-        if(ship)
-        {
+        if(ship) {
             shots[i].x = x - (SHIP_SHOT_W / 2);
             shots[i].y = y;
         }
@@ -413,16 +405,13 @@ bool shots_add(bool ship, bool straight, int x, int y) {
             shots[i].x = x - (ALIEN_SHOT_W / 2);
             shots[i].y = y - (ALIEN_SHOT_H / 2);
 
-            if(straight)
-            {
+            if(straight) {
                 shots[i].dx = 0;
                 shots[i].dy = 2;
             }
-            else
-            {
-
+            else {
                 shots[i].dx = between(-2, 2);
-                shots[i].dy = between(-2, 2);
+                shots[i].dy = between(1, 3);
             }
 
             // if the shot has no speed, don't bother
@@ -440,15 +429,12 @@ bool shots_add(bool ship, bool straight, int x, int y) {
     return false;
 }
 
-void shots_update()
-{
-    for(int i = 0; i < SHOTS_N; i++)
-    {
+void shots_update() {
+    for(int i = 0; i < SHOTS_N; i++) {
         if(!shots[i].used)
             continue;
 
-        if(shots[i].ship)
-        {
+        if(shots[i].ship) {
             shots[i].y -= 5;
 
             if(shots[i].y < -SHIP_SHOT_H)
@@ -462,12 +448,16 @@ void shots_update()
             shots[i].x += shots[i].dx;
             shots[i].y += shots[i].dy;
 
-            if((shots[i].x < -ALIEN_SHOT_W)
-            || (shots[i].x > BUFFER_W)
-            || (shots[i].y < -ALIEN_SHOT_H)
-            || (shots[i].y > BUFFER_H)
-            ) {
+            if((shots[i].y < -ALIEN_SHOT_H) || (shots[i].y > BUFFER_H)) {
                 shots[i].used = false;
+                continue;
+            } else if (shots[i].x <= -4) {
+                shots[i].dx = -shots[i].dx;
+                shots[i].x += shots[i].dx;
+                continue;
+            } else if (shots[i].x >= BUFFER_W) {
+                shots[i].dx = -shots[i].dx;
+                shots[i].x += shots[i].dx;
                 continue;
             }
         }
@@ -476,8 +466,7 @@ void shots_update()
     }
 }
 
-bool shots_collide(bool ship, int x, int y, int w, int h)
-{
+bool shots_collide(bool ship, int x, int y, int w, int h) {
     for(int i = 0; i < SHOTS_N; i++)
     {
         if(!shots[i].used)
@@ -688,11 +677,12 @@ typedef enum ALIEN_TYPE {
     ALIEN_TYPE_BUG = 0,
     ALIEN_TYPE_ARROW,
     ALIEN_TYPE_THICCBOI,
+    ALIEN_TYPE_MOTHERSHIP,
     ALIEN_TYPE_N
 } ALIEN_TYPE;
 
 typedef struct ALIEN {
-    int x, y;
+    float x, y;
     int x0, y0;
     ALIEN_TYPE type;
     int shot_timer;
@@ -705,13 +695,11 @@ typedef struct ALIEN {
 #define ALIENS_N 12*5
 #define ALIENS_COLS 12
 #define ALIENS_ROWS 5
+
 ALIEN aliens[ALIENS_N];
+ALIEN mothership;
 
 void aliens_init() {
-    // for(int i = 0; i < ALIENS_N; i++) {
-    //     aliens[i].used = false;
-    // }
-
     for(int i = 0; i < ALIENS_ROWS; i++) {
         for(int j = i*ALIENS_COLS; j < ALIENS_COLS*(i+1); j++) {
             aliens[j].x = 40 + ((j - (i*ALIENS_COLS)) * 20);
@@ -731,6 +719,15 @@ void aliens_init() {
             aliens[j].y0 = aliens[j].y;
         }
     }
+
+    mothership.x = BUFFER_W + 30;
+    mothership.y = 20;
+    mothership.type = ALIEN_TYPE_MOTHERSHIP;
+    mothership.shot_timer = 0;
+    mothership.blink = 0;
+    mothership.life = 1;
+    mothership.used = false;
+    mothership.movingRight = true;    
 }
 
 void aliens_update() {
@@ -774,59 +771,14 @@ void aliens_update() {
                         }
                     }
                 }
-            //     new_x += between(40, 80);
-            //     if(new_x > (BUFFER_W - 60))
-            //         new_x -= (BUFFER_W - 60);
 
-            //     aliens[i].x = new_x;
-
-            //     aliens[i].y = 20;
-            //     aliens[i].type = between(0, ALIEN_TYPE_N);
-            //     aliens[i].shot_timer = between(1, 99);
-            //     aliens[i].blink = 0;
-            //     aliens[i].used = true;
-
-            //     switch(aliens[i].type) {
-            //         case ALIEN_TYPE_BUG:
-            //             aliens[i].life = 4;
-            //             break;
-            //         case ALIEN_TYPE_ARROW:
-            //             aliens[i].life = 2;
-            //             break;
-            //         case ALIEN_TYPE_THICCBOI:
-            //             aliens[i].life = 12;
-            //             break;
-            //     }
-
-                 new_quota--;
+                new_quota--;
             }
             continue;
         }
 
-        // essa parte faz eles se moverem, mexer aqui pra fazer isso
-        // switch(aliens[i].type) {
-        //     case ALIEN_TYPE_BUG:
-        //         if(frames % 2)
-        //             aliens[i].x++;
-        //         break;
-
-        //     case ALIEN_TYPE_ARROW:
-        //         aliens[i].x++;
-        //         break;
-
-        //     case ALIEN_TYPE_THICCBOI:
-        //         if(!(frames % 4))
-        //             aliens[i].x++;
-        //         break;
-        // }
-
         // movement
-        // if(!(frames % 3)){
-        //     if(aliens[0].x <= 60)
-        //         aliens[i].x++;
-        // }
-
-        if(!(frames % 5)) {
+        if(!(frames % 5)) {            
             if (aliens[i].movingRight) {
                 aliens[i].x++;
 
@@ -842,20 +794,6 @@ void aliens_update() {
                     aliens[i].y = aliens[i].y + 1.5;
                 }
             }
-        }
-
-        // if((frames % 2) && (aliens[12].x < 300))
-        //     aliens[i].x++;
-        // else if ((frames % 2) && (aliens[12].x >= 300))
-        //     aliens[i].x--;
-        // else if (!(frames % 2) && (aliens[12].x < 300))
-        //     aliens[i].x--;
-        // else if (!(frames % 2) && (aliens[12].x >= 300))
-        //     aliens[i].x++;
-
-        if(aliens[i].y >= BUFFER_H) {
-            aliens[i].used = false;
-            continue;
         }
 
         if(aliens[i].blink)
@@ -892,13 +830,12 @@ void aliens_update() {
 
             aliens[i].used = false;
             continue;
-        }
+        } 
 
         aliens[i].shot_timer--;
         
         if(aliens[i].shot_timer == 0) {
-            switch(aliens[i].type)
-            {
+            switch(aliens[i].type) {
                 case ALIEN_TYPE_BUG:
                     shots_add(false, false, cx, cy);
                     aliens[i].shot_timer = 150;
@@ -916,73 +853,32 @@ void aliens_update() {
                     break;
             }
         }
+
+        // mothership
+        if (mothership.life > 0) {
+            if(!(frames % 5)) mothership.x = mothership.x - 0.04;
+
+            if(shots_collide(false, mothership.x, mothership.y, ALIEN_THICCBOI_W, ALIEN_THICCBOI_H)) {
+                mothership.life--;
+                mothership.blink = 4;
+            }
+
+            if (mothership.life <= 0) {
+                int cx = mothership.x + (ALIEN_THICCBOI_W);
+                int cy = mothership.y + (ALIEN_THICCBOI_H);
+
+                score += 1000;
+
+                fx_add(false, cx-10, cy-4);
+                fx_add(false, cx+4, cy+10);
+                fx_add(false, cx+8, cy+8);
+
+                mothership.used = true;
+
+                // fazer algo pra poder atirar 2x sei lá
+            }
+        }
     }
-
-    // if (new_quota) {
-    //     for (int i = 0; i < 2; i++) {
-    //         int x = between(0, ALIENS_N);
-
-    //         while((!aliens[x].used) && (aliens[x].shot_timer > 0))
-    //             x = between(0, ALIENS_N);
-
-    //         int cx = aliens[x].x + (ALIEN_W[aliens[x].type] / 2);
-    //         int cy = aliens[x].y + (ALIEN_H[aliens[x].type] / 2);
-
-    //         if ((aliens[x].used) && (aliens[x].shot_timer <= 0)) {
-    //             switch (aliens[x].type) {
-    //                 case ALIEN_TYPE_BUG:
-    //                     shots_add(false, false, cx, cy);
-    //                     aliens[x].shot_timer = 200;
-    //                     break;
-    //                 case ALIEN_TYPE_ARROW:
-    //                     shots_add(false, true, cx, aliens[x].y);
-    //                     aliens[x].shot_timer = 200;
-    //                     break;
-    //                 case ALIEN_TYPE_THICCBOI:
-    //                     shots_add(false, true, cx-5, cy);
-    //                     shots_add(false, true, cx+5, cy);
-    //                     shots_add(false, true, cx-5, cy + 8);
-    //                     shots_add(false, true, cx+5, cy + 8);
-    //                     aliens[x].shot_timer = 200;
-    //                     break; 
-    //             }
-    //         }
-    //     }
-    //     new_quota = 0;
-    // }
-    
-        
-
-    // if (shot_time > 0) {
-    //     for (int i = ALIENS_N; i >=0; i--) {
-    //         int cx = aliens[i].x + (ALIEN_W[aliens[i].type] / 2);
-    //         int cy = aliens[i].y + (ALIEN_H[aliens[i].type] / 2);
-
-    //         if((aliens[i].used) && (aliens[i].shot_timer <= 0)) {
-    //             switch (aliens[i].type) {
-    //                 case ALIEN_TYPE_BUG:
-    //                     shots_add(false, false, cx, cy);
-    //                     aliens[i].shot_timer = 150;
-    //                     break;
-    //                 case ALIEN_TYPE_ARROW:
-    //                     shots_add(false, true, cx, aliens[i].y);
-    //                     aliens[i].shot_timer = 80;
-    //                     break;
-    //                 case ALIEN_TYPE_THICCBOI:
-    //                     shots_add(false, true, cx-5, cy);
-    //                     shots_add(false, true, cx+5, cy);
-    //                     shots_add(false, true, cx-5, cy + 8);
-    //                     shots_add(false, true, cx+5, cy + 8);
-    //                     aliens[i].shot_timer = 200;
-    //                     break; 
-    //             }
-
-    //             shot_time--;
-    //         }
-
-    //         if(!shot_time) break;
-    //     }
-    // } 
 }
 
 void aliens_draw() {
@@ -995,6 +891,8 @@ void aliens_draw() {
         // aqui pra escolher os sprites que vão ser usados pra cada tipo de alien
         al_draw_bitmap(sprites2.alien[aliens[i].type], aliens[i].x, aliens[i].y, 0);
     }
+
+    if(!mothership.used) al_draw_bitmap(sprites.alien[2], mothership.x, mothership.y, 0);
 }
 
 
