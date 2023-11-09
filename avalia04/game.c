@@ -21,26 +21,22 @@
 long frames;
 long score;
 
-void must_init(bool test, const char *description)
-{
+void must_init(bool test, const char *description) {
     if(test) return;
 
     printf("couldn't initialize %s\n", description);
     exit(1);
 }
 
-int between(int lo, int hi)
-{
+int between(int lo, int hi) {
     return lo + (rand() % (hi - lo));
 }
 
-float between_f(float lo, float hi)
-{
+float between_f(float lo, float hi) {
     return lo + ((float)rand() / (float)RAND_MAX) * (hi - lo);
 }
 
-bool collide(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2)
-{
+bool collide(int ax1, int ay1, int ax2, int ay2, int bx1, int by1, int bx2, int by2) {
     if(ax1 > bx2) return false;
     if(ax2 < bx1) return false;
     if(ay1 > by2) return false;
@@ -608,9 +604,8 @@ void ship_update() {
     }
 }
 
-void ship_draw()
-{
-    if(ship.lives < 0)
+void ship_draw() {
+    if(ship.lives <= 0)
         return;
     if(ship.respawn_timer)
         return;
@@ -969,8 +964,9 @@ void hud_update() {
     }
 }
 
-void hud_draw()
-{
+int hud_draw() {
+    int testaAliens = 0;
+
     al_draw_textf(
         font,
         al_map_rgb_f(1,1,1),
@@ -984,7 +980,7 @@ void hud_draw()
     for(int i = 0; i < ship.lives; i++)
         al_draw_bitmap(sprites.life, 1 + (i * spacing), 10, 0);
 
-    if(ship.lives < 0)
+    if(ship.lives <= 0) {
         al_draw_text(
             font,
             al_map_rgb_f(1,1,1),
@@ -992,6 +988,29 @@ void hud_draw()
             ALLEGRO_ALIGN_CENTER,
             "G A M E  O V E R"
         );
+
+        return 1;
+    }
+        
+
+    for(int i = 0; i < ALIENS_N; i++) {
+        if(!aliens[i].used)
+            testaAliens++;
+    }
+
+    if (testaAliens == ALIENS_N) {
+        al_draw_text(
+            font,
+            al_map_rgb_f(1,1,1),
+            BUFFER_W / 2, BUFFER_H / 2,
+            ALLEGRO_ALIGN_CENTER,
+            "G A N H O U   M A N I N H O!"
+        );
+
+        return 1;
+    }
+
+    return 0;
 }
 
 
