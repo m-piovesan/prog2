@@ -12,8 +12,8 @@
 #define LIFE_W 6
 #define LIFE_H 6
 
-const int ALIEN_W[] = {14, 13, 45};
-const int ALIEN_H[] = { 9, 10, 27};
+int ALIEN_W[] = {14, 13, 45};
+int ALIEN_H[] = { 9, 10, 27};
 
 #define ALIEN_BUG_W      ALIEN_W[0]
 #define ALIEN_BUG_H      ALIEN_H[0]

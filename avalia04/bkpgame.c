@@ -2,7 +2,7 @@
  *
  * for gcc users, it can be compiled & run with:
  *
- * gcc game.c -o game $(pkg-config allegro-5 allegro_font-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 allegro_image-5 --libs --cflags)
+ * gcc bkpgame.c -o game $(pkg-config allegro-5 allegro_font-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 allegro_image-5 --libs --cflags)
  * ./game
  */
 
@@ -1125,7 +1125,7 @@ int main() {
                     hud_update();
 
                     // mothership spawns at frame 1200
-                    if (frames == 120) mothership_init();
+                    if (frames == 1200) mothership_init();
                     
                     if(game_over_test() == 1) {
                         while (1) {
@@ -1159,6 +1159,7 @@ int main() {
                                 } else if (event.keyboard.keycode == ALLEGRO_KEY_R) {
                                     init_all();
                                     frames = 0;
+                                    score_display = 0;
                                     score = 0;
                                     menu = 0;
                                     break;

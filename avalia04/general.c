@@ -1,5 +1,9 @@
 #include "general.h"
 
+
+long frames;
+long score;
+
 void must_init(bool test, const char *description) {
     if(test) return;
 

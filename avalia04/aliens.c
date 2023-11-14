@@ -1,5 +1,14 @@
 #include "aliens.h"
 
+extern long frames;
+extern long score;
+
+extern ALLEGRO_SAMPLE* sample_shot;
+extern ALLEGRO_SAMPLE* sample_explode[2];
+
+extern ALLEGRO_DISPLAY* disp;
+extern ALLEGRO_BITMAP* buffer;
+
 void aliens_init() {
     for(int i = 0; i < ALIENS_ROWS; i++) {
         for(int j = i*ALIENS_COLS; j < ALIENS_COLS*(i+1); j++) {

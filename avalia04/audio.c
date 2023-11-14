@@ -1,5 +1,11 @@
 #include "audio.h"
 
+ALLEGRO_SAMPLE* sample_shot;
+ALLEGRO_SAMPLE* sample_explode[2];
+
+extern long frames;
+extern long score;
+
 void audio_init() {
     al_install_audio();
     al_init_acodec_addon();

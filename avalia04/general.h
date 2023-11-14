@@ -5,9 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-long frames;
-long score;
-
 void must_init(bool test, const char *description);
 int between(int lo, int hi);
 float between_f(float lo, float hi);

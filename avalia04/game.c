@@ -14,6 +14,12 @@
 #include "sprites.h"
 #include "stars.h"
 
+extern long frames;
+extern long score;
+
+extern ALLEGRO_DISPLAY* disp;
+extern ALLEGRO_BITMAP* buffer;
+
 void init_all() {
     keyboard_init();
     fx_init();

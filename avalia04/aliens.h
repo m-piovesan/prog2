@@ -1,9 +1,6 @@
 #ifndef __ALIENS__
 #define __ALIENS__
 
-#include <allegro5/allegro.h>
-#include <stdbool.h>
-
 #include "fx.h"
 #include "shots.h"
 #include "general.h"

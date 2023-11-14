@@ -1,5 +1,11 @@
 #include "fx.h"
 
+#define EXPLOSION_FRAMES 4
+#define SPARKS_FRAMES    3
+
+extern ALLEGRO_SAMPLE* sample_shot;
+extern ALLEGRO_SAMPLE* sample_explode[2];
+
 void fx_init() {
     for(int i = 0; i < FX_N; i++)
         fx[i].used = false;

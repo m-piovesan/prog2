@@ -1,4 +1,9 @@
+
+
 #include "hud.h"
+
+extern long frames;
+extern long score;
 
 void hud_init() {
     font = al_create_builtin_font();

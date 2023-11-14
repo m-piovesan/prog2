@@ -1,5 +1,8 @@
 #include "shots.h"
 
+extern ALLEGRO_SAMPLE* sample_shot;
+extern ALLEGRO_SAMPLE* sample_explode[2];
+
 void shots_init() {
     for(int i = 0; i < SHOTS_N; i++)
         shots[i].used = false;
