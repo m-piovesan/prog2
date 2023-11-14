@@ -6,24 +6,28 @@
 [X] - andar para esq/dir
 [X] - atirar caso não exista um projétil seu na coluna (edit: kinda did it kkkkkkkkkkkk)
 [X] - iniciar com três vidas, sendo que uma vida é removida cada vez que a mesma é acertada
-[ ] - uma vida adicionada a cada fim de rodada (máx 5)
+[X] - uma vida adicionada a cada fim de rodada (máx 5)
 
 # OBSTÁCULOS
 [X] - removido após 10 de dano
 
 # RODADAS
-[ ] - quando todos os inimigos morrerem, começa uma nova rodada, carregando novos inimigos.
+[X] - quando todos os inimigos morrerem, começa uma nova rodada, carregando novos inimigos.
 
 # INTERFACE
 [X] - contador de pontos (não reinicia entre rodadas) (10 pts: inifraco / 20: médio / 30: forte)
 [X] - contador de vidas
-[ ] - menu de início
+[X] - menu de início
 [X] - sprites diferentes cada inimigo (incluindo os tiros)
 [X] - animação explosão
 
 # SELF
-[ ] - mexer pra acabar quando não tiver mais nenhuma nave viva
+[X] - mexer pra acabar quando não tiver mais nenhuma nave viva
 [X] - arrumar os tiros a cada tanto tempo (edit: colocar uma struct pistola na nave pra eu saber que o tiro anterior ainda tá em movimento ou não)
 [X] - tornar obstáculos reais
-[ ] - mudar nome dos aliens
+[X] - mudar nome dos aliens
 [ ] - modularizar tudo
+[X] - transformar mothership em funções próprias
+[ ] - comentar código
+[X] - colocar teste se a nave morreu (hud.c)
+[ ] - mudar pra mothership spawnar a cada 1200 frames
