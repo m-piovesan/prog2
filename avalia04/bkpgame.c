@@ -691,6 +691,7 @@ typedef struct ALIEN {
     int shot_timer;
     int blink;
     int life;
+    int changeStyle;
     bool used;
     bool movingRight;
 } ALIEN;
@@ -715,6 +716,7 @@ void aliens_init() {
             aliens[j].shot_timer = 0;
             aliens[j].blink = 0;
             aliens[j].life = 1;
+            aliens[j].changeStyle = 100;
             aliens[j].used = true;
             aliens[j].movingRight = true;
 
@@ -855,6 +857,12 @@ void aliens_update() {
             }
         }
 
+        // change style
+        if(aliens[i].changeStyle > 0)
+            aliens[i].changeStyle--;
+        else
+            aliens[i].changeStyle = 100;
+
         // mothership
         if (mothership.life > 0) {
             if(!(frames % 5)) mothership.x = mothership.x - 0.04;
@@ -887,7 +895,7 @@ void aliens_draw() {
         if(aliens[i].blink > 2)
             continue;
 
-        if (frames % 5)
+        if (aliens[i].changeStyle > 50)
             al_draw_bitmap(sprites2.alien[aliens[i].type], aliens[i].x, aliens[i].y, 0);
         else
             al_draw_bitmap(sprites21.alien[aliens[i].type], aliens[i].x, aliens[i].y, 0);
@@ -908,6 +916,17 @@ int aliens_life_tester() {
 
     if (testaAliens == ALIENS_N)
         return 1;
+
+    return 0;
+}
+
+int aliens_position_tester() {
+    for(int i = 0; i < ALIENS_N; i++) {
+        if(aliens[i].used) {
+            if (aliens[i].y >= BUFFER_H - 70)
+                return 1;
+        }
+    }
 
     return 0;
 }
@@ -1232,7 +1251,7 @@ int main() {
                     // mothership spawns at frame 1200
                     if (frames == 1200) mothership_init();
                     
-                    if(game_over_test() == 1) {
+                    if((game_over_test()) || (aliens_position_tester())) {
                         while (1) {
                             al_wait_for_event(queue, &event);
 
