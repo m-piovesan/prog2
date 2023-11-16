@@ -162,20 +162,31 @@ typedef struct SPRITES {
 
 SPRITES sprites;
 SPRITES sprites2;
+SPRITES sprites21;
 SPRITES sprites3;
 
+// ship
 ALLEGRO_BITMAP* sprite_grab(int x, int y, int w, int h) {
     ALLEGRO_BITMAP* sprite = al_create_sub_bitmap(sprites._sheet, x, y, w, h);
     must_init(sprite, "sprite grab");
     return sprite;
 }
 
+// aliens
 ALLEGRO_BITMAP* sprite_grab2(int x, int y, int w, int h) {
     ALLEGRO_BITMAP* sprite2 = al_create_sub_bitmap(sprites2._sheet, x, y, w, h);
     must_init(sprite2, "sprite grab");
     return sprite2;
 }
 
+//aliens moving
+ALLEGRO_BITMAP* sprite_grab21(int x, int y, int w, int h) {
+    ALLEGRO_BITMAP* sprite21 = al_create_sub_bitmap(sprites21._sheet, x, y, w, h);
+    must_init(sprite21, "sprite grab");
+    return sprite21;
+}
+
+// obstacles
 ALLEGRO_BITMAP *sprite_grab3(int x, int y, int w, int h) {
     ALLEGRO_BITMAP* sprite3 = al_create_sub_bitmap(sprites3._sheet, x, y, w, h);
     must_init(sprite3, "sprite grab");
@@ -185,10 +196,12 @@ ALLEGRO_BITMAP *sprite_grab3(int x, int y, int w, int h) {
 void sprites_init() {
     sprites._sheet = al_load_bitmap("./media/sprites/spritesheet.png");
     sprites2._sheet = al_load_bitmap("./media/sprites/aliens.png");
+    sprites21._sheet = al_load_bitmap("./media/sprites/aliensmove.png");
     sprites3._sheet = al_load_bitmap("./media/sprites/obstacle.png");
 
     must_init(sprites._sheet, "spritesheet");
     must_init(sprites2._sheet, "spritesheet");
+    must_init(sprites21._sheet, "spritesheet");
     must_init(sprites3._sheet, "spritesheet");
 
     sprites.ship = sprite_grab(0, 0, SHIP_W, SHIP_H);
@@ -205,6 +218,10 @@ void sprites_init() {
     sprites2.alien[0] = sprite_grab2(0, 21, 14, 10);
     sprites2.alien[1] = sprite_grab2(0, 0, 14, 10);
     sprites2.alien[2] = sprite_grab2(18, 21, 14, 10);
+
+    sprites21.alien[0] = sprite_grab21(0, 20, 15, 11);
+    sprites21.alien[1] = sprite_grab21(0, 0, 14, 10);
+    sprites21.alien[2] = sprite_grab21(18, 21, 14, 10);
 
     sprites.alien_shot = sprite_grab(13, 10, ALIEN_SHOT_W, ALIEN_SHOT_H);
 
@@ -233,6 +250,7 @@ void sprites_deinit() {
     for (int i = 0; i < 3; i++) {
         al_destroy_bitmap(sprites.alien[i]);
         al_destroy_bitmap(sprites2.alien[i]);
+        al_destroy_bitmap(sprites21.alien[i]);
         al_destroy_bitmap(sprites.sparks[i]);
         al_destroy_bitmap(sprites3.obstacle[i]);
     }
@@ -569,10 +587,8 @@ void ship_update() {
 
     if(ship.invincible_timer)
         ship.invincible_timer--;
-    else
-    {
-        if(shots_collide(true, ship.x, ship.y, SHIP_W, SHIP_H))
-        {
+    else {
+        if(shots_collide(true, ship.x, ship.y, SHIP_W, SHIP_H)) {
             int x = ship.x + (SHIP_W / 2);
             int y = ship.y + (SHIP_H / 2);
             fx_add(false, x, y);
@@ -590,6 +606,7 @@ void ship_update() {
         ship.shot_timer--;
     else if(key[ALLEGRO_KEY_X]) {
         int x = ship.x + (SHIP_W / 2);
+        
         if(shots_add(true, false, x, ship.y)) {
             ship.shot_timer = 50;
         } 
@@ -661,11 +678,10 @@ void obstacles_draw() {
 // --- aliens ---
 
 typedef enum ALIEN_TYPE {
-    ALIEN_TYPE_BUG = 0,
+    ALIEN_TYPE_BUG,
     ALIEN_TYPE_ARROW,
     ALIEN_TYPE_BOW,
     ALIEN_TYPE_MOTHERSHIP,
-    ALIEN_TYPE_N
 } ALIEN_TYPE;
 
 typedef struct ALIEN {
@@ -725,7 +741,6 @@ void aliens_update() {
         ? 0
         : 1
     ;
-    int new_x = between(10, BUFFER_W-50);
 
     for(int i = 0; i < ALIENS_N; i++) {
         if(!aliens[i].used) {
@@ -733,7 +748,7 @@ void aliens_update() {
                 for (int i = 0; i < 2; i++) {
                     int x = between(0, ALIENS_N);
 
-                    while((!aliens[x].used) && (aliens[x].shot_timer > 0))
+                    while((aliens[x].used) && (aliens[x].shot_timer > 0))
                         x = between(0, ALIENS_N);
 
                     int cx = aliens[x].x + (ALIEN_W[aliens[x].type] / 2);
@@ -872,8 +887,10 @@ void aliens_draw() {
         if(aliens[i].blink > 2)
             continue;
 
-        // aqui pra escolher os sprites que vão ser usados pra cada tipo de alien
-        al_draw_bitmap(sprites2.alien[aliens[i].type], aliens[i].x, aliens[i].y, 0);
+        if (frames % 5)
+            al_draw_bitmap(sprites2.alien[aliens[i].type], aliens[i].x, aliens[i].y, 0);
+        else
+            al_draw_bitmap(sprites21.alien[aliens[i].type], aliens[i].x, aliens[i].y, 0);
     }
 }
 
@@ -992,7 +1009,7 @@ void new_round_test() {
 }
 
 int game_over_test() {
-    if (ship.lives <= 0)
+    if (ship.lives <= 2)
         return 1;
 
     return 0;
@@ -1050,6 +1067,78 @@ void start_menu() {
         ALLEGRO_ALIGN_CENTER,
         "Press 'P' to play or 'ESC' to quit"
     );
+
+    al_draw_text(
+        font,
+        al_map_rgb_f(1,1,1),
+        BUFFER_W / 2, (BUFFER_H / 2) + 20,
+        ALLEGRO_ALIGN_CENTER,
+        "Press 'T' to open tutorial"
+    );
+
+    disp_post_draw();
+}
+
+void tutorial() {
+    disp_pre_draw();
+    al_clear_to_color(al_map_rgb(0,0,0));
+    
+    al_draw_text(
+        font,
+        al_map_rgb_f(1,1,1),
+        0, 10,
+        ALLEGRO_ALIGN_LEFT,
+        "############################################"
+    );
+
+    al_draw_text(
+        font,
+        al_map_rgb_f(1,1,1),
+        0, BUFFER_H-25,
+        ALLEGRO_ALIGN_LEFT,
+        "############################################"
+    );
+
+    al_draw_text(
+        font,
+        al_map_rgb_f(0,1,0),
+        BUFFER_W / 2, 50,
+        ALLEGRO_ALIGN_CENTER,
+        "CONTROLS:"
+    );
+    
+    al_draw_text(
+        font,
+        al_map_rgb_f(0,1,0),
+        BUFFER_W / 2, 100,
+        ALLEGRO_ALIGN_CENTER,
+        "MOVE: Arrow keys (left / right)"
+    );
+
+    al_draw_text(
+        font,
+        al_map_rgb_f(0,1,0),
+        BUFFER_W / 2, 120,
+        ALLEGRO_ALIGN_CENTER,
+        "PEW-PEW: press 'X' to shoot"
+    );
+
+    al_draw_text(
+        font,
+        al_map_rgb_f(1,1,1),
+        BUFFER_W / 2, 170,
+        ALLEGRO_ALIGN_CENTER,
+        "Press 'B' to return to menu"
+    );
+
+    al_draw_text(
+        font,
+        al_map_rgb_f(1,1,1),
+        BUFFER_W / 2, 190,
+        ALLEGRO_ALIGN_CENTER,
+        "or 'ESC' to quit"
+    );
+
 
     disp_post_draw();
 }
@@ -1109,6 +1198,22 @@ int main() {
                     menu = 1;
                     continue;
                 } else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) break;
+                else if (event.keyboard.keycode == ALLEGRO_KEY_T) {
+                    menu = 2;
+                    continue;
+                }
+            } else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
+        }
+
+        // tutorial
+        if(menu == 2) {
+            tutorial();
+
+            if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+                if (event.keyboard.keycode == ALLEGRO_KEY_B) {
+                    menu = 0;
+                    continue;
+                } else if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) break;
             } else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
         }
 
@@ -1162,6 +1267,7 @@ int main() {
                                     score_display = 0;
                                     score = 0;
                                     menu = 0;
+
                                     break;
                                 }
                             }
@@ -1203,14 +1309,12 @@ int main() {
 
                 new_round_test();
 
-                if(frames > 120) mothership_draw();
+                if(frames > 1200) mothership_draw();
 
                 disp_post_draw();
                 redraw = false;
             }
-        }
-
-        
+        }      
     }
 
     deinit_all();
