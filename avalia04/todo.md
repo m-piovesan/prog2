@@ -28,6 +28,6 @@
 [X] - mudar nome dos aliens
 [ ] - modularizar tudo
 [X] - transformar mothership em funções próprias
-[ ] - comentar código
+[X] - comentar código
 [X] - colocar teste se a nave morreu (hud.c)
-[ ] - mudar pra mothership spawnar a cada 1200 frames
+[X] - mudar pra mothership spawnar a cada 1200 frames

@@ -93,14 +93,17 @@ void update_shots(space *board, shot_sentinel *list){
             board->map[p->position_y][p->position_x].entity = NULL; // remove o tiro da posição anterior no tabuleiro            
             
             if(board->map[new_position_y][p->position_x].entity != NULL) { // se o tiro acertar um alvo, remove o alvo do tabuleiro
-                remove_enemy(board, new_position_y, p->position_x); // remove o inimigo do tabuleiro
-                remove_shot(p, q, list); // remove o tiro da lista
+                //remove_enemy(board, new_position_y, p->position_x); // remove o inimigo do tabuleiro
+                //remove_shot(p, q, list); // remove o tiro da lista
+                printf("Acertou um alvo\n");
             } else {
-                board->map[new_position_y][p->position_x].entity = p; // adiciona o tiro na nova posição no tabuleiro
+                //board->map[new_position_y][p->position_x].entity = p; // adiciona o tiro na nova posição no tabuleiro
                 p->position_y = new_position_y; // atualiza a posição do tiro na lista
             }
-        } else 
+        } else {
             p = remove_shot(p, q, list); // se o tiro saiu do tabuleiro, tira da lista
+            printf("Saiu do tabuleiro\n");
+        } 
         
 		q = p;
 		p = p->next;

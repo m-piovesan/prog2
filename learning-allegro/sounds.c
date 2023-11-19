@@ -7,8 +7,6 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
-#include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_acodec.h>
 
 void must_init(bool test, const char *description) {
     if(test) return;
